@@ -1,0 +1,26 @@
+{
+  "name": "wechat-jssdk",
+  "description": "Wechat develop tools for jssdk.",
+  "main": "dist/wechat-jssdk.js",
+  "authors": [
+    "afei"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "next"
+  ],
+  "homepage": "https://github.com/afeiship/wechat-jssdk",
+  "moduleType": [
+    "amd"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "src",
+    "gulp",
+    "gulpfile.js"
+  ]
+}
