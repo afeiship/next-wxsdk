@@ -4,7 +4,7 @@ var nx = require('next-js-core2');
 var WechatUpload = nx.declare({
   statics:{
     upload:function(inOptions){
-      wx.config(inOptions);
+      // wx.config(inOptions);
     }
   }
 });
