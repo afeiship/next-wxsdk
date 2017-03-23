@@ -1,5 +1,5 @@
-#wechat-jssdk
-> Wechat develop tools for jssdk.
+# next-wxsdk
+> Better wechat jssdk based on next toolkit.
 
 
 ## resources:

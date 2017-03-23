@@ -10,8 +10,8 @@
   });
 
   gulp.task('build', ['clean'], function() {
-    console.log('Your task goes here!');
-    //gulp.start(['styles']);
+    // console.log('Your task goes here!');
+    gulp.start(['scripts']);
   });
 
 
