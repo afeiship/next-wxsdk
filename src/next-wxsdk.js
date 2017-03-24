@@ -26,6 +26,9 @@
       ready:function(inCallback){
         return wx.ready(inCallback);
       },
+      checkJsApi:function(inOptions){
+        return wx.checkJsApi(inOptions);
+      },
       error:function(inCallback){
         return Q.nfcall(wx.error,inCallback);
       },
