@@ -7,6 +7,9 @@
 + https://github.com/kriskowal/q
 + https://mp.weixin.qq.com/wiki
 
+## size:
++ [ default size ]: all files 3.52 kB
++ [ minimize size ]: all files 1.88 kB
 
 ## apilist:
 + import next-wxsdk package:
