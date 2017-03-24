@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "next-js-core2": "github:afeiship/next-js-core2",
+    "next-qqueue": "github:afeiship/next-qqueue",
     "q": "^1.5.0",
     "wechat-jssdk": "github:afeiship/wechat-jssdk"
   }
