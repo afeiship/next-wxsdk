@@ -28,6 +28,16 @@
     //hide/showOptionMenu
     'hideOptionMenu',
     'showOptionMenu',
+
+    //start/stopRecord
+    'startRecord',
+    'stopRecord',
+    'onVoiceRecordEnd',
+    'openLocation',
+    'getLocation',
+    'scanQRCode',
+    'chooseWXPay',
+    'openAdreess'
   ];
 
 
@@ -44,7 +54,15 @@
           'onMenuShareWeibo',
           'chooseImage',
           'previewImage',
-          'uploadImage'
+          'uploadImage',
+          'closeWindow',
+          'hideOptionMenu',
+          'showOptionMenu',
+          'openLocation',
+          'getLocation',
+          'scanQRCode',
+          'chooseWXPay',
+          'openAdreess'
         ]
       },
       params:function(){
@@ -52,8 +70,8 @@
           url: window.location.href.split('#')[0]
         };
       },
-      config:function(inOptions){
-        var options = nx.mix(Wxsdk.defaults,inOptions);
+      config:function(inOptions1,inOption2){
+        var options = nx.mix(Wxsdk.defaults,inOptions1,inOption2);
         if (typeof wx != 'undefined') {
           wx.config(options);
         } else {
