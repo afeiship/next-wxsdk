@@ -5,7 +5,7 @@
   var Q = global.Q || require('q');
   var Qqueue = nx.Qqueue || require('next-qqueue');
 
-  var supportApiList = [
+  var generatedApiList = [
     //basic:
     'ready',
     'checkJsApi',
@@ -52,16 +52,21 @@
           'onMenuShareTimeline','onMenuShareAppMessage',
           'onMenuShareQQ','onMenuShareQZone',
           'onMenuShareWeibo',
+
           'chooseImage',
           'previewImage',
           'uploadImage',
+
           'closeWindow',
           'hideOptionMenu',
           'showOptionMenu',
+
           'openLocation',
           'getLocation',
+
           'scanQRCode',
           'chooseWXPay',
+
           'openAdreess'
         ]
       },
@@ -114,7 +119,7 @@
   });
 
   //generate wx basic api:
-  supportApiList.forEach(function(item){
+  generatedApiList.forEach(function(item){
     nx.defineStatic(Wxsdk,item,wx[item]);
   });
 
