@@ -70,13 +70,25 @@
           'openAdreess'
         ]
       },
+      __config:null,
       params:function(){
         return {
           url: window.location.href.split('#')[0]
         };
       },
+      initialize:function(inOptions){
+        this.__config = inOptions;
+        switch(true){
+          case nx.isBoolean(inOptions.optionMenu):
+            wx.ready(function(){
+              this.optionMenu(inOptions.optionMenu);
+            });
+          break;
+        }
+      },
       config:function(inOptions1,inOption2){
         var options = nx.mix(Wxsdk.defaults,inOptions1,inOption2);
+        Wxsdk.initialize(options);
         if (typeof wx != 'undefined') {
           wx.config(options);
         } else {
