@@ -24,7 +24,7 @@
         }
       },
       ready:function(inCallback){
-        return Q.nfcall(wx.ready,inCallback);
+        return wx.ready(inCallback);
       },
       error:function(inCallback){
         return Q.nfcall(wx.error,inCallback);
