@@ -86,8 +86,8 @@
           break;
         }
       },
-      config:function(inOptions1,inOption2){
-        var options = nx.mix(Wxsdk.defaults,inOptions1,inOption2);
+      config:function(inSignOptions,inOptions){
+        var options = nx.mix(Wxsdk.defaults,inSignOptions,inOptions);
         Wxsdk.initialize(options);
         if (typeof wx != 'undefined') {
           wx.config(options);
