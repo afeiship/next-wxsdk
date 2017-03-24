@@ -1,9 +1,12 @@
 (function (global) {
 
   var nx = global.nx || require('next-js-core2');
-  // types: ['Timeline','AppMessage','QQ','Weibo','QZone'];
+  var TYPES = ['Timeline','AppMessage','QQ','Weibo','QZone'];
+  var wx = global.wx || require('wechat-jssdk');
+
   var Wxsdk = nx.declare('nx.Wxsdk', {
     statics:{
+      version:'1.2.0',
       config:function(inOptions){
         if (typeof wx != 'undefined') {
           wx.config(inOptions);
@@ -16,8 +19,8 @@
           inCallback.call(inContext);
         });
       },
-      share:function(inTypes,inOptions){
-        inTypes.forEach(function(item){
+      share:function(inOptions){
+        (inTypes || TYPES).forEach(function(item){
           var api = nx.format('onMenuShare{0}',[item]);
           wx[api](inOptions);
         });
