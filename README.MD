@@ -9,7 +9,7 @@
 
 ## size:
 + [ default size ]: all files 3.52 kB
-+ [ minimize size ]: all files 1.88 kB
++ [ minimize size ]: all files 1.87 kB
 
 ## apilist:
 + import next-wxsdk package:

@@ -71,9 +71,9 @@
         ]
       },
       __config:null,
-      params:function(){
+      param:function(){
         return {
-          url: window.location.href.split('#')[0]
+          url: global.location.href.split('#')[0]
         };
       },
       initialize:function(inOptions){
