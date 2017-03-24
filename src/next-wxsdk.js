@@ -41,7 +41,10 @@
         jsApiList:[
           'onMenuShareTimeline','onMenuShareAppMessage',
           'onMenuShareQQ','onMenuShareQZone',
-          'onMenuShareWeibo'
+          'onMenuShareWeibo',
+          'chooseImage',
+          'previewImage',
+          'uploadImage'
         ]
       },
       params:function(){
