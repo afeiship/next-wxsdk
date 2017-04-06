@@ -77,6 +77,25 @@
           url: global.location.href.split('#')[0]
         };
       },
+      updateTitle:function(inTitle){
+        var body = document.getElementsByTagName('body')[0];
+        document.title = inTitle;
+        var iframe = document.createElement("iframe");
+        iframe.setAttribute("src", "favicon.ico");
+        iframe.style.visibility = 'hidden';
+        iframe.style.position = 'absolute';
+        iframe.style.zIndex = -1;
+
+        iframe.addEventListener('load', __loadFn);
+
+        function __loadFn() {
+          setTimeout(function () {
+            iframe.removeEventListener('load', __loadFn);
+            document.body.removeChild(iframe);
+          }, 0);
+        }
+        document.body.appendChild(iframe);
+      },
       initialize:function(inOptions){
         this.__config = inOptions;
         switch(true){
