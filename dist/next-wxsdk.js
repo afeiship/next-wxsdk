@@ -1,5 +1,6 @@
-(function (global) {
+(function () {
 
+  var global = window || this;
   var nx = global.nx || require('next-js-core2');
   var wx = global.wx || require('wechat-jssdk');
   var Q = global.Q || require('q');
@@ -142,4 +143,4 @@
     module.exports = Wxsdk;
   }
 
-}(this));
+}());
