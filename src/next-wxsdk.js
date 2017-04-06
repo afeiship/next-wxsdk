@@ -123,8 +123,8 @@
       syncUploadImages:function(inLocalIds,inOptions){
         var optionList = [];
         inLocalIds.forEach(function(localId){
-          inOptions.localId = localId;
-          optionList.push(inOptions);
+          var option= nx.mix({},inOptions,{localId:localId})
+          optionList.push(option);
         });
         return Qqueue.queue(optionList,Wxsdk.syncUploadImage);
       }
