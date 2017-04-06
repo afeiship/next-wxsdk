@@ -127,6 +127,28 @@
           optionList.push(option);
         });
         return Qqueue.queue(optionList,Wxsdk.syncUploadImage);
+      },
+      chooseToUpload: function(inChooseOptions,inUploadOptions){
+        var deferred = Q.defer();
+        var uploadOptions = nx.mix( {
+              isShowProgressTips: 1
+        },inUploadOptions);
+
+        var chooseOptions = nx.mix({
+          count: 9,
+          sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+          sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+          success: function (res) {
+            Wxsdk.syncUploadImages(res.localIds, uploadOptions).then(function(result){
+              deferred.resolve(result);
+            },function(error){
+              deferred.reject(error);
+            });
+          }
+        },inChooseOptions);
+
+        Wxsdk.chooseImage(chooseOptions);
+        return deferred.promise;
       }
     }
   });
