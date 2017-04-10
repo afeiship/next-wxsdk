@@ -137,8 +137,8 @@
         }, inOptions, {
           success: function (response) {
             return Qqueue.queue(response.localIds, Wxsdk.syncGetLocalImgData).then(function (res) {
-              var result = response.localIds.map(function (localId, index) {
-                return res[index].localData
+              var result = res.map(function (item) {
+                return item.localData;
               });
 
               deferred.resolve({
@@ -173,14 +173,7 @@
       syncUploadImage: function (inOptions) {
         var deferred = Q.defer();
         wx.uploadImage(
-          nx.mix(inOptions, {
-            success: function (response) {
-              deferred.resolve(response);
-            },
-            error: function (error) {
-              deferred.reject(error);
-            }
-          })
+          nx.mix(inOptions, Wxsdk.__toPromiseResponse(deferred))
         );
         return deferred.promise;
       },
