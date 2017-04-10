@@ -2,7 +2,7 @@
 
   var global = window || this;
   var nx = global.nx || require('next-js-core2');
-  var wx = global.wx || require('wechat-jssdk');
+  var wx = global.wx = global.wx || require('wechat-jssdk');
   var Q = global.Q || require('q');
   var Qqueue = nx.Qqueue || require('next-qqueue');
 
@@ -22,6 +22,7 @@
     'chooseImage',
     'previewImage',
     'uploadImage',
+    'getLocalImgData',
 
     //back to wechat:
     'closeWindow',
@@ -43,20 +44,21 @@
 
 
   var Wxsdk = nx.declare('nx.Wxsdk', {
-    statics:{
-      VERSION:'1.2.0',
-      wx:wx,
-      SHARE_TAYPES:['Timeline','AppMessage','QQ','Weibo','QZone'],
-      defaults:{
-        debug:true,
-        jsApiList:[
-          'onMenuShareTimeline','onMenuShareAppMessage',
-          'onMenuShareQQ','onMenuShareQZone',
+    statics: {
+      VERSION: '1.2.0',
+      wx: wx,
+      SHARE_TAYPES: ['Timeline', 'AppMessage', 'QQ', 'Weibo', 'QZone'],
+      defaults: {
+        debug: true,
+        jsApiList: [
+          'onMenuShareTimeline', 'onMenuShareAppMessage',
+          'onMenuShareQQ', 'onMenuShareQZone',
           'onMenuShareWeibo',
 
           'chooseImage',
           'previewImage',
           'uploadImage',
+          'getLocalImgData',
 
           'closeWindow',
           'hideOptionMenu',
@@ -71,13 +73,13 @@
           'openAdreess'
         ]
       },
-      __config:null,
-      param:function(){
+      __config: null,
+      param: function () {
         return {
           url: global.location.href.split('#')[0]
         };
       },
-      updateTitle:function(inTitle){
+      updateTitle: function (inTitle) {
         var body = document.getElementsByTagName('body')[0];
         document.title = inTitle;
         var iframe = document.createElement("iframe");
@@ -94,20 +96,21 @@
             document.body.removeChild(iframe);
           }, 0);
         }
+
         document.body.appendChild(iframe);
       },
-      initialize:function(inOptions){
+      initialize: function (inOptions) {
         this.__config = inOptions;
-        switch(true){
+        switch (true) {
           case nx.isBoolean(inOptions.optionMenu):
-            wx.ready(function(){
-              this.optionMenu(inOptions.optionMenu);
+            wx.ready(function () {
+              Wxsdk.optionMenu(inOptions.optionMenu);
             });
-          break;
+            break;
         }
       },
-      config:function(inSignOptions,inOptions){
-        var options = nx.mix(Wxsdk.defaults,inSignOptions,inOptions);
+      config: function (inSignOptions, inOptions) {
+        var options = nx.mix(Wxsdk.defaults, inSignOptions, inOptions);
         Wxsdk.initialize(options);
         if (typeof wx != 'undefined') {
           wx.config(options);
@@ -115,69 +118,124 @@
           nx.error('Must import this wx api script: <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js" charset="utf-8"></script>')
         }
       },
-      share:function(inOptions,inTypes){
+      share: function (inOptions, inTypes) {
         var types = inTypes || Wxsdk.SHARE_TAYPES;
-        types.forEach(function(item){
-          var api = 'onMenuShare'+item;
+        types.forEach(function (item) {
+          var api = 'onMenuShare' + item;
           wx[api](inOptions);
         });
       },
-      optionMenu:function(inVisible){
+      optionMenu: function (inVisible) {
         return inVisible ? wx.showOptionMenu() : wx.hideOptionMenu();
       },
-      syncUploadImage:function(inOptions){
+      syncChooseImageWithData: function (inOptions) {
+        var deferred = Q.defer();
+        var options = nx.mix({
+          count: 9,
+          sizeType: ['original', 'compressed'],
+          sourceType: ['album', 'camera']
+        }, inOptions, {
+          success: function (response) {
+            return Qqueue.queue(response.localIds, Wxsdk.syncGetLocalImgData).then(function (res) {
+              var result = response.localIds.map(function (localId, index) {
+                return res[index].localData
+              });
+
+              deferred.resolve({
+                localIds: response.localIds,
+                localDatas: result
+              });
+            }, function (error) {
+              deferred.reject(error);
+            });
+          }
+        });
+        wx.chooseImage(options);
+        return deferred.promise;
+      },
+      syncChooseImage: function (inOptions) {
+        var deferred = Q.defer();
+        var options = nx.mix({
+          count: 9,
+          sizeType: ['original', 'compressed'],
+          sourceType: ['album', 'camera']
+        }, inOptions, Wxsdk.__toPromiseResponse(deferred));
+        wx.chooseImage(options);
+        return deferred.promise;
+      },
+      syncGetLocalImgData: function (inLocalId) {
+        //todo:wrap this to common expression? or q has one?
+        var deferred = Q.defer();
+        var options = nx.mix({localId: inLocalId}, Wxsdk.__toPromiseResponse(deferred));
+        wx.getLocalImgData(options);
+        return deferred.promise;
+      },
+      syncUploadImage: function (inOptions) {
         var deferred = Q.defer();
         wx.uploadImage(
-          nx.mix(inOptions,{
-            success:function(response){
+          nx.mix(inOptions, {
+            success: function (response) {
               deferred.resolve(response);
             },
-            error:function(error){
+            error: function (error) {
               deferred.reject(error);
             }
           })
         );
         return deferred.promise;
       },
-      syncUploadImages:function(inLocalIds,inOptions){
+      syncUploadImages: function (inLocalIds, inOptions) {
         var optionList = [];
-        inLocalIds.forEach(function(localId){
-          var option= nx.mix({},inOptions,{localId:localId})
+        inLocalIds.forEach(function (localId) {
+          var option = nx.mix({}, inOptions, {localId: localId});
           optionList.push(option);
         });
-        return Qqueue.queue(optionList,Wxsdk.syncUploadImage);
+        return Qqueue.queue(optionList, Wxsdk.syncUploadImage);
       },
-      chooseToUpload: function(inChooseOptions,inUploadOptions){
+      chooseToUpload: function (inChooseOptions, inUploadOptions) {
         var deferred = Q.defer();
-        var uploadOptions = nx.mix( {
-              isShowProgressTips: 1
-        },inUploadOptions);
+        var uploadOptions = nx.mix({
+          isShowProgressTips: 1
+        }, inUploadOptions);
 
         var chooseOptions = nx.mix({
           count: 9,
           sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
-          sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
-          success: function (res) {
-            Wxsdk.syncUploadImages(res.localIds, uploadOptions).then(function(result){
-              deferred.resolve(result);
-            },function(error){
-              deferred.reject(error);
-            });
-          }
-        },inChooseOptions);
+          sourceType: ['album', 'camera']
+        }, inChooseOptions);
 
-        Wxsdk.chooseImage(chooseOptions);
+        Wxsdk.syncChooseImageWithData(chooseOptions).then(function (response) {
+          Wxsdk.syncUploadImages(response.localIds, uploadOptions).then(function (result) {
+            result.forEach(function (item, index) {
+              item.localData = response.localDatas[index];
+            });
+            deferred.resolve(result);
+          }, function (error) {
+            deferred.reject(error);
+          });
+        }, function (error) {
+          deferred.reject(error);
+        });
         return deferred.promise;
+      },
+
+      __toPromiseResponse: function (inDeferred) {
+        return {
+          success: function (response) {
+            inDeferred.resolve(response);
+          },
+          error: function (error) {
+            inDeferred.reject(error);
+          }
+        };
       }
     }
   });
 
   //generate wx basic api:
-  generatedApiList.forEach(function(item){
-    nx.defineStatic(Wxsdk,item,wx[item]);
+  generatedApiList.forEach(function (item) {
+    nx.defineStatic(Wxsdk, item, wx[item]);
   });
-
-
 
 
   if (typeof module !== 'undefined' && module.exports) {
