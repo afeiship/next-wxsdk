@@ -128,77 +128,66 @@
       optionMenu: function (inVisible) {
         return inVisible ? wx.showOptionMenu() : wx.hideOptionMenu();
       },
-      syncChooseImageWithData: function (inOptions) {
-        var deferred = Q.defer();
-        var options = nx.mix({
-          count: 9,
-          sizeType: ['original', 'compressed'],
-          sourceType: ['album', 'camera']
-        }, inOptions, {
-          success: function (response) {
-            return Qqueue.queue(response.localIds, Wxsdk.syncGetLocalImgData).then(function (res) {
-              var result = res.map(function (item) {
-                return item.localData;
-              });
 
-              deferred.resolve({
-                localIds: response.localIds,
-                localDatas: result
-              });
-            }, function (error) {
-              deferred.reject(error);
-            });
-          }
-        });
-        wx.chooseImage(options);
-        return deferred.promise;
-      },
+      //wx.chooseImage:
       syncChooseImage: function (inOptions) {
-        var deferred = Q.defer();
         var options = nx.mix({
           count: 9,
           sizeType: ['original', 'compressed'],
           sourceType: ['album', 'camera']
-        }, inOptions, Wxsdk.__toPromiseResponse(deferred));
-        wx.chooseImage(options);
-        return deferred.promise;
+        },inOptions);
+        return Wxsdk.__wrapToQPromise('chooseImage',options);
       },
-      syncGetLocalImgData: function (inLocalId) {
-        //todo:wrap this to common expression? or q has one?
-        var deferred = Q.defer();
-        var options = nx.mix({localId: inLocalId}, Wxsdk.__toPromiseResponse(deferred));
-        wx.getLocalImgData(options);
-        return deferred.promise;
+
+
+      //wx.getLocalImgData:
+      syncGetLocalImageData: function (inOptions) {
+        return Wxsdk.__wrapToQPromise('getLocalImgData',inOptions);
       },
+      syncGetLocalImageDatas: function(inLocalIds,inOptions){
+        var optionList = Wxsdk.__makeOptionList(inLocalIds,inOptions);
+        return Qqueue.queue(optionList, Wxsdk.syncGetLocalImageData);
+      },
+
+      //wx.uploadImage
       syncUploadImage: function (inOptions) {
-        var deferred = Q.defer();
-        wx.uploadImage(
-          nx.mix(inOptions, Wxsdk.__toPromiseResponse(deferred))
-        );
-        return deferred.promise;
+        var options = nx.mix({
+          isShowProgressTips: 1
+        },inOptions);
+        return Wxsdk.__wrapToQPromise('uploadImage',options);
       },
       syncUploadImages: function (inLocalIds, inOptions) {
-        var optionList = [];
-        inLocalIds.forEach(function (localId) {
-          var option = nx.mix({}, inOptions, {localId: localId});
-          optionList.push(option);
-        });
+        var optionList = Wxsdk.__makeOptionList(inLocalIds,inOptions);
         return Qqueue.queue(optionList, Wxsdk.syncUploadImage);
       },
-      chooseToUpload: function (inChooseOptions, inUploadOptions) {
+
+      //chooseImage && getLocalImageData
+      syncChooseImageWithData:function(inChooseOptions,inImageOptions){
         var deferred = Q.defer();
-        var uploadOptions = nx.mix({
-          isShowProgressTips: 1
-        }, inUploadOptions);
+        Wxsdk.syncChooseImage(inChooseOptions).then(function(response){
+          Wxsdk.syncGetLocalImageDatas(response.localIds,inImageOptions).then(function(result){
+            var localDatas = result.map(function (item) {
+              return item.localData;
+            });
 
-        var chooseOptions = nx.mix({
-          count: 9,
-          sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
-          sourceType: ['album', 'camera']
-        }, inChooseOptions);
+            deferred.resolve({
+              localIds: response.localIds,
+              localDatas: result
+            });
+          },function(err){
+            deferred.reject(err);
+          })
+        },function(error){
+          deferred.reject(error);
+        });
+        return deferred.promise;
+      },
 
-        Wxsdk.syncChooseImageWithData(chooseOptions).then(function (response) {
-          Wxsdk.syncUploadImages(response.localIds, uploadOptions).then(function (result) {
+      // choose && upload:
+      syncChooseImageToUpload: function (inChooseOptions, inUploadOptions) {
+        var deferred = Q.defer();
+        Wxsdk.syncChooseImageWithData(inChooseOptions).then(function (response) {
+          Wxsdk.syncUploadImages(response.localIds, inUploadOptions).then(function (result) {
             result.forEach(function (item, index) {
               item.localData = response.localDatas[index];
             });
@@ -212,15 +201,41 @@
         return deferred.promise;
       },
 
-      __toPromiseResponse: function (inDeferred) {
-        return {
-          success: function (response) {
-            inDeferred.resolve(response);
-          },
-          error: function (error) {
-            inDeferred.reject(error);
-          }
-        };
+      syncChooseImageDataToUpload: function(inChooseOptions,inUploadOptions){
+        var deferred = Q.defer();
+        Wxsdk.syncChooseImage(inChooseOptions).then(function(response){
+          Wxsdk.syncUploadImages(response.localIds, inUploadOptions).then(function(result){
+            deferred.resolve(result);
+          },function(err){
+            deferred.reject(err);
+          });
+        },function(error){
+          deferred.reject(error);
+        });
+        return deferred.promise;
+      },
+
+      __wrapToQPromise:function(inApi,inOptions){
+        var deferred = Q.defer();
+        wx[inApi](
+          nx.mix(inOptions, {
+            success: function (response) {
+              deferred.resolve(response);
+            },
+            error: function (error) {
+              deferred.reject(error);
+            }
+          })
+        );
+        return deferred.promise;
+      },
+      __makeOptionList:function(inLocalIds,inOptions){
+        var optionList = [];
+        inLocalIds.forEach(function (localId) {
+          var option = nx.mix({}, inOptions, {localId: localId});
+          optionList.push(option);
+        });
+        return optionList;
       }
     }
   });
