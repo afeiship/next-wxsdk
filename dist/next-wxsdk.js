@@ -184,7 +184,7 @@
       },
 
       // choose && upload:
-      syncChooseImageToUpload: function (inChooseOptions, inUploadOptions) {
+      syncChooseImageDataToUpload: function (inChooseOptions, inUploadOptions) {
         var deferred = Q.defer();
         Wxsdk.syncChooseImageWithData(inChooseOptions).then(function (response) {
           Wxsdk.syncUploadImages(response.localIds, inUploadOptions).then(function (result) {
@@ -201,7 +201,7 @@
         return deferred.promise;
       },
 
-      syncChooseImageDataToUpload: function(inChooseOptions,inUploadOptions){
+      syncChooseImageToUpload: function(inChooseOptions,inUploadOptions){
         var deferred = Q.defer();
         Wxsdk.syncChooseImage(inChooseOptions).then(function(response){
           Wxsdk.syncUploadImages(response.localIds, inUploadOptions).then(function(result){
