@@ -205,7 +205,10 @@
         var deferred = Q.defer();
         Wxsdk.syncChooseImage(inChooseOptions).then(function(response){
           Wxsdk.syncUploadImages(response.localIds, inUploadOptions).then(function(result){
-            deferred.resolve(result);
+            var newImages = result.map(function(item, index){
+              return nx.mix(item, {localId: localIds[index]});
+            });
+            deferred.resolve(newImages);
           },function(err){
             deferred.reject(err);
           });
