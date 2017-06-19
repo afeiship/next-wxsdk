@@ -204,7 +204,8 @@
       syncChooseImageToUpload: function(inChooseOptions,inUploadOptions){
         var deferred = Q.defer();
         Wxsdk.syncChooseImage(inChooseOptions).then(function(response){
-          Wxsdk.syncUploadImages(response.localIds, inUploadOptions).then(function(result){
+          var localIds = response.localIds;
+          Wxsdk.syncUploadImages(localIds, inUploadOptions).then(function(result){
             var newImages = result.map(function(item, index){
               return nx.mix(item, {localId: localIds[index]});
             });
