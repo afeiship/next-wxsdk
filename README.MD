@@ -66,3 +66,7 @@ _click2(){
 ```javascript
  Wxsdk.wx.chooseCard(YOUR_OPTIONS);
 ```
+## todos:
++ [ ] remove wechat-jssdk instead of onlline sdk1.2.0;
++ [ ] use Promise solution instead of $q
++ [ ] optimze CONST file.

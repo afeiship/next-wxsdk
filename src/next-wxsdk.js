@@ -227,7 +227,7 @@
             success: function (response) {
               deferred.resolve(response);
             },
-            error: function (error) {
+            fail: function (error) {
               deferred.reject(error);
             }
           })
